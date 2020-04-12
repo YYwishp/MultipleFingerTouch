@@ -65,6 +65,14 @@ public class SquareLinearLayout extends LinearLayout {
 
 	}
 
+	@Override
+	public boolean onInterceptTouchEvent(MotionEvent ev) {
+		return super.onInterceptTouchEvent(ev);
+
+
+
+
+	}
 
 	private int mTouchRepeat = 0; //过滤掉长按的情况
 	private boolean mPoint2Down = false;  //是否出现双指按下的情况
