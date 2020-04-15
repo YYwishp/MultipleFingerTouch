@@ -31,6 +31,11 @@ public class SquareLinearLayout extends LinearLayout {
 	private int widthSize;
 	private AnimatorSet animatorSet;
 
+	// 用于判断第2个手指是否存在
+	boolean haveSecondPoint = false;
+	// 用于判断第3个手指是否存在
+	boolean haveThirdPoint = false;
+
 	public SquareLinearLayout(Context context) {
 		//super(context);
 		this(context, null);
@@ -48,82 +53,153 @@ public class SquareLinearLayout extends LinearLayout {
 		super(context, attrs, defStyleAttr);
 	}
 
-	@Override
-	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		//super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-		//设置测量尺寸
-		setMeasuredDimension(getDefaultSize(0, widthMeasureSpec), getDefaultSize(0, heightMeasureSpec));
-		//控件宽度
-		widthSize = getMeasuredWidth();
-		//获取 当前宽度下，spec参数
-		widthMeasureSpec = MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.EXACTLY);
-		//重新测量
-		super.onMeasure(widthMeasureSpec, widthMeasureSpec);
+	//@Override
+	//protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+	//	//super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+	//	//设置测量尺寸
+	//	setMeasuredDimension(getDefaultSize(0, widthMeasureSpec), getDefaultSize(0, heightMeasureSpec));
+	//	//控件宽度
+	//	widthSize = getMeasuredWidth();
+	//	//获取 当前宽度下，spec参数
+	//	widthMeasureSpec = MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.EXACTLY);
+	//	//重新测量
+	//	super.onMeasure(widthMeasureSpec, widthMeasureSpec);
+	//
+	//
+	//
+	//
+	//}
 
 
+	interface MultiClickListener{
+		public void onSingleClickListener();
 
+		public void onSecondPointClickListener();
 
+		public void onThirdPointClickListener();
 	}
 
-	@Override
-	public boolean onInterceptTouchEvent(MotionEvent ev) {
-		return super.onInterceptTouchEvent(ev);
-
-
-
-
-	}
-
-	private int mTouchRepeat = 0; //过滤掉长按的情况
-	private boolean mPoint2Down = false;  //是否出现双指按下的情况
-	@Override
-	public boolean dispatchTouchEvent(MotionEvent ev) {
-		switch (ev.getAction()) {
-			case MotionEvent.ACTION_DOWN:
-				mPoint2Down = false;
-				mTouchRepeat = 0;
-				break;
-			case MotionEvent.ACTION_MOVE:
-				mTouchRepeat++;
-				break;
-			case MotionEvent.ACTION_POINTER_2_DOWN:
-				mPoint2Down = true;
-				break;
-			case MotionEvent.ACTION_POINTER_UP:
-				if (mPoint2Down && mTouchRepeat < 10) {
-					//do something here
-					Log.e("tap_tap_event", "It works!");
-				}
-				break;
-		}
-		return true;
+	private MultiClickListener mMultiClickListener;
+	public void setOnMultiTouchListener(MultiClickListener multiTouchListener) {
+		mMultiClickListener = multiTouchListener;
 	}
 
 
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		View childAt = getChildAt(0);
-//        //孩子分发
-		childAt.dispatchTouchEvent(event);
-		switch (event.getAction() & MotionEvent.ACTION_MASK) {
+		//Log.e("按下几个手指", event.getPointerCount() + "个");
+		int index = event.getActionIndex();
+
+		//Log.e("TouchEvent", "action== " + event.getActionMasked());
+		//Log.e("index", index+"");
+		switch (event.getActionMasked()) {
 			case MotionEvent.ACTION_DOWN:
-				//beginScale(R.anim.zoom_in);
-				//beginScale(R.anim.zoom_out);
+				//for (int i = 0; i < event.getPointerCount(); i++) {
+				//	Log.e("按下", "pointerIndex="+i+", pointerId="+event.getPointerId(i));
+				//}
+
+				//-->一开始 第一个手指点击的时候，第一步要初始化
+				haveSecondPoint = false;
+				haveThirdPoint = false;
+
+
+				int pointerId = event.getPointerId(index);
+/*
+				Log.e("ACTION_DOWN","第1个手指按下 pointerId = "+pointerId+" 手指数量 "+event.getPointerCount());
+*/
+
+
 				zoomInAnimation();
 				break;
+
+
+			case MotionEvent.ACTION_POINTER_DOWN: // 有非主要的手指按下(即按下之前已经有手指在屏幕上)。
+				int pointerId_2 = event.getPointerId(index);
+
+/*
+				Log.e("ACTION_POINTER_DOWN","第"+(index+1)+"个手指按下  pointId = "+pointerId_2 +" 手指数量 "+event.getPointerCount());
+*/
+				// 判断是否是第2个手指按下
+				if (event.getPointerId(index) == 1) {
+					haveSecondPoint = true;
+/*
+					Log.e("TAG","有2个手指");
+*/
+				}
+				// 判断是否是第3个手指按下
+				if (event.getPointerId(index) == 2) {
+					haveThirdPoint = true;
+/*
+					Log.e("TAG","有3个手指");
+*/
+				}
+
+
+				break;
 			case MotionEvent.ACTION_MOVE:
+				//for (int i = 0; i < event.getPointerCount(); i++) {
+				//	Log.e("ACTION_MOVE", "pointerIndex="+i+", pointerId="+event.getPointerId(i));
+				//}
+				//int index_move = event.getActionIndex(); //在 ACTION_MOVE 情况下，获取始终是0
+				//Log.e("index_move","index = "+index_move);
 				break;
+
+			case MotionEvent.ACTION_POINTER_UP: //有非主要的手指抬起(即抬起之后仍然有手指在屏幕上)。
+				//if (event.getPointerCount() == 2) {
+				//	haveSecondPoint = false;
+				//}
+				//if (event.getPointerCount() == 3) {
+				//	haveThirdPoint = false;
+				//}
+
+
+				//Log.e("Tag", "ACTION_POINTER_UP")
+				int pointerId_4 = event.getPointerId(index);
+/*
+				Log.e("ACTION_POINTER_UP","第"+(index+1)+"个手指抬起 pointId = "+pointerId_4+" 手指数量 "+event.getPointerCount());
+*/
+				break;
+
+
 			case MotionEvent.ACTION_UP:
-				//beginScale(R.anim.zoom_out);
+				//Log.e("Tag", "ACTION_UP");
+				int pointerId_3 = event.getPointerId(index);
+
+/*
+				Log.e("ACTION_UP","最后1个手指抬起  pointId = "+pointerId_3+" 手指数量 "+event.getPointerCount() +"haveThirdPoint = "+haveThirdPoint +"   haveSecondPoint = "+haveSecondPoint);
+*/
+
+				//for (int i = 0; i < event.getPointerCount(); i++) {
+				//	Log.e("抬起", "pointerIndex="+i+", pointerId="+event.getPointerId(i));
+				//}
+				if (!haveThirdPoint && !haveSecondPoint) {
+					if (mMultiClickListener != null) {
+						mMultiClickListener.onSingleClickListener();
+					}
+				} else if (haveThirdPoint) {
+					haveSecondPoint = false;
+					if (mMultiClickListener != null) {
+						mMultiClickListener.onThirdPointClickListener();
+					}
+				} else if (haveSecondPoint) {
+					if (mMultiClickListener != null) {
+						mMultiClickListener.onSecondPointClickListener();
+					}
+				}
+
+
 				zoomOutAnimation();
+
 				break;
+
+
 			case MotionEvent.ACTION_CANCEL:
-				//beginScale(R.anim.zoom_out);
 				zoomOutAnimation();
 				break;
 		}
-		return super.onTouchEvent(event);
+		//return super.onTouchEvent(event);
+		return true;
 
 	}
 
