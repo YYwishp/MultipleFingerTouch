@@ -11,7 +11,7 @@
         android:id="@+id/square"
         android:layout_centerInParent="true"
         android:background="#f0f"
-        android:layout_width="match_parent"
+        android:layout_width="300dp"
         android:layout_height="300dp">
     </com.gyx.multiplefingertouch.SquareLinearLayout>
     <!--<com.gyx.multiplefingertouch.MultiTouchTest-->
@@ -20,4 +20,8 @@
     <!--    android:layout_height="match_parent">-->
 
     <!--</com.gyx.multiplefingertouch.MultiTouchTest>-->
+
+
+
+
 </RelativeLayout>

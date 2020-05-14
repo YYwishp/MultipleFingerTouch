@@ -3,8 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.gyx.multiplefingertouch">
 
-
+    <!-- Required to provide the web interface -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Required to run keep-alive service when targeting API 28 or higher -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <application
+        android:name=".ExampleApp"
         android:allowBackup="true"
         android:hardwareAccelerated="false"
 

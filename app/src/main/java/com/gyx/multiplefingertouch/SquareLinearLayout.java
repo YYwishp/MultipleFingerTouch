@@ -24,7 +24,7 @@ import androidx.annotation.Nullable;
  */
 public class SquareLinearLayout extends LinearLayout {
 
-	private static Long lastClickTime = 0L;
+	private static final int PRESS_TIME = 3000;
 	private static int hash = 0;
 
 	private Context context;
@@ -53,28 +53,32 @@ public class SquareLinearLayout extends LinearLayout {
 		super(context, attrs, defStyleAttr);
 	}
 
-	//@Override
-	//protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-	//	//super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-	//	//设置测量尺寸
-	//	setMeasuredDimension(getDefaultSize(0, widthMeasureSpec), getDefaultSize(0, heightMeasureSpec));
-	//	//控件宽度
-	//	widthSize = getMeasuredWidth();
-	//	//获取 当前宽度下，spec参数
-	//	widthMeasureSpec = MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.EXACTLY);
-	//	//重新测量
-	//	super.onMeasure(widthMeasureSpec, widthMeasureSpec);
-	//
-	//
-	//
-	//
-	//}
+	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		//super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+		//设置测量尺寸
+		setMeasuredDimension(getDefaultSize(0, widthMeasureSpec), getDefaultSize(0, heightMeasureSpec));
+		//控件宽度
+		widthSize = getMeasuredWidth();
+		//获取 当前宽度下，spec参数
+		widthMeasureSpec = MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.EXACTLY);
+		//重新测量
+		super.onMeasure(widthMeasureSpec, widthMeasureSpec);
+
+
+
+
+	}
 
 
 	interface MultiClickListener{
-		public void onSingleClickListener();
+		void onSingleClickListener();
 
-		public void onSecondPointClickListener();
+		void onSingleLongClickListener();
+
+		void onSecondPointClickListener();
+
+		void onSecondPointLongClickListener();
 
 		public void onThirdPointClickListener();
 	}
@@ -90,7 +94,7 @@ public class SquareLinearLayout extends LinearLayout {
 	public boolean onTouchEvent(MotionEvent event) {
 		//Log.e("按下几个手指", event.getPointerCount() + "个");
 		int index = event.getActionIndex();
-
+		long downTime = event.getDownTime();
 		//Log.e("TouchEvent", "action== " + event.getActionMasked());
 		//Log.e("index", index+"");
 		switch (event.getActionMasked()) {
@@ -105,9 +109,7 @@ public class SquareLinearLayout extends LinearLayout {
 
 
 				int pointerId = event.getPointerId(index);
-/*
 				Log.e("ACTION_DOWN","第1个手指按下 pointerId = "+pointerId+" 手指数量 "+event.getPointerCount());
-*/
 
 
 				zoomInAnimation();
@@ -117,22 +119,16 @@ public class SquareLinearLayout extends LinearLayout {
 			case MotionEvent.ACTION_POINTER_DOWN: // 有非主要的手指按下(即按下之前已经有手指在屏幕上)。
 				int pointerId_2 = event.getPointerId(index);
 
-/*
 				Log.e("ACTION_POINTER_DOWN","第"+(index+1)+"个手指按下  pointId = "+pointerId_2 +" 手指数量 "+event.getPointerCount());
-*/
 				// 判断是否是第2个手指按下
 				if (event.getPointerId(index) == 1) {
 					haveSecondPoint = true;
-/*
 					Log.e("TAG","有2个手指");
-*/
 				}
 				// 判断是否是第3个手指按下
 				if (event.getPointerId(index) == 2) {
 					haveThirdPoint = true;
-/*
 					Log.e("TAG","有3个手指");
-*/
 				}
 
 
@@ -143,6 +139,13 @@ public class SquareLinearLayout extends LinearLayout {
 				//}
 				//int index_move = event.getActionIndex(); //在 ACTION_MOVE 情况下，获取始终是0
 				//Log.e("index_move","index = "+index_move);
+				Log.e("ACTION_MOVE","EventTime = "+event.getEventTime()+"");
+				Log.e("ACTION_MOVE","getDownTime = "+event.getDownTime()+"");
+
+
+
+
+
 				break;
 
 			case MotionEvent.ACTION_POINTER_UP: //有非主要的手指抬起(即抬起之后仍然有手指在屏幕上)。
@@ -156,9 +159,7 @@ public class SquareLinearLayout extends LinearLayout {
 
 				//Log.e("Tag", "ACTION_POINTER_UP")
 				int pointerId_4 = event.getPointerId(index);
-/*
 				Log.e("ACTION_POINTER_UP","第"+(index+1)+"个手指抬起 pointId = "+pointerId_4+" 手指数量 "+event.getPointerCount());
-*/
 				break;
 
 
@@ -166,9 +167,7 @@ public class SquareLinearLayout extends LinearLayout {
 				//Log.e("Tag", "ACTION_UP");
 				int pointerId_3 = event.getPointerId(index);
 
-/*
 				Log.e("ACTION_UP","最后1个手指抬起  pointId = "+pointerId_3+" 手指数量 "+event.getPointerCount() +"haveThirdPoint = "+haveThirdPoint +"   haveSecondPoint = "+haveSecondPoint);
-*/
 
 				//for (int i = 0; i < event.getPointerCount(); i++) {
 				//	Log.e("抬起", "pointerIndex="+i+", pointerId="+event.getPointerId(i));
